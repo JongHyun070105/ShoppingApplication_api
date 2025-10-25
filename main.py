@@ -648,7 +648,7 @@ async def search_products(q: str, supabase: Client = Depends(get_supabase)):
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================================================
-# Ranking APIs
+# Ranking API
 # ============================================================================
 
 @app.get("/products-ranking")
