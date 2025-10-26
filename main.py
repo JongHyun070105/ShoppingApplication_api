@@ -575,7 +575,7 @@ async def get_recent_viewed_products(user_id: int = 1, limit: int = 50, supabase
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================================================
-# Search & Filter APIs
+# Search & Filter API
 # ============================================================================
 
 @app.get("/popular-search-terms")
