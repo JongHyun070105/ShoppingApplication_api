@@ -566,6 +566,12 @@ async def get_recent_viewed_products(user_id: int = 1, limit: int = 50, supabase
                 formatted_products = format_product_data([product])
                 products.append(formatted_products[0])
         
+        # 최근 조회 데이터가 없으면 전체 상품에서 일부 반환
+        if not products:
+            logger.info("최근 조회 데이터 없음 - 전체 상품에서 일부 반환 (테스트용)")
+            all_products_response = supabase.table("products").select("*").order("created_at", desc=True).limit(limit).execute()
+            products = format_product_data(all_products_response.data)
+        
         logger.info(f"최근 조회 상품 조회 성공 - {len(products)}개 상품")
         
         return create_standard_response(products)
@@ -632,6 +638,11 @@ async def search_products(q: str, supabase: Client = Depends(get_supabase)):
     """
     try:
         logger.info(f"상품 검색 - 검색어: '{q}'")
+
+        q = (q or "").strip()
+        if not q:
+            logger.info("빈 검색어 요청 - 빈 목록 반환")
+            return create_standard_response([], "검색어가 비어있습니다")
         
         response = supabase.table("products").select("*").or_(
             f"product_name.ilike.%{q}%,brand_name.ilike.%{q}%"
@@ -663,7 +674,7 @@ async def get_products_ranking(supabase: Client = Depends(get_supabase)):
     """
     try:
         logger.info("상품 랭킹 조회")
-        response = supabase.table("products").select("*").order("likes", desc=True).limit(30).execute()
+        response = supabase.table("products").select("*").order("likes", desc=True).limit(20).execute()
         
         formatted_products = format_product_data(response.data)
         
